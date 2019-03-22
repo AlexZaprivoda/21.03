@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div>
+      <button id="run">
+        run
+      </button>
+      <select id="sel">
+        <option value="10">10 - on page</option>
+        <option value="20">20 - on page</option>
+        <option value="50" selected>50 - on page</option>
+      </select>
+    </div>
+
+    <div id="commentsWrapper"></div>
+
+    <div>
+      <button id="prev">previews</button>
+      <h5 id="pageNumberEl"></h5>
+      <button id="next">next</button>
+    </div>
+  </body>
+
+  <script>
+    let comments = [];
+
+    run.addEventListener("click", () => {
+      fetch("https://jsonplaceholder.typicode.com/comments")
+        .then(data => data.json())
+        .then(data => {
+          comments = data;
+          renderComments(1, 1);
+        })
+        .catch(console.log);
+      run.parentElement.removeChild(run);
+    });
+
+    sel.addEventListener("change", ({ target }) => {
+      console.log(target.value);
+      let index = location.hash;
+      index = +index.replace("#", "");
+
+      renderComments(index, 1);
+    });
+
+    prev.addEventListener("click", () => {
+      let index = location.hash;
+      index = +index.replace("#", "") - 1;
+      if (index <= 0) {
+        index = 500;
+      }
+
+      renderComments(index, 1);
+    });
+
+    next.addEventListener("click", () => {
+      let index = location.hash;
+      index = +index.replace("#", "") + 1;
+      if (index >= comments.length) {
+        index = 1;
+      }
+      renderComments(index, 1);
+    });
+
+    function renderComments(pageNumber, perPage = 20) {
+      perPage = +sel.value;
+      const max = pageNumber * perPage;
+      const min = (pageNumber - 1) * perPage;
+
+      let html = "";
+      for (let i = min; i < max && i < comments.length; i++) {
+        html += `
+                <div>
+                    <h3>${comments[i].name}</h3>
+                    <p>${comments[i].body}</p>
+                    <h6 style="text-align: right">
+                        ${comments[i].email}
+                        <br>
+                        ID:${comments[i].id}
+                    </h6>
+
+                    <hr>
+                </div>`;
+      }
+      commentsWrapper.innerHTML = html;
+    }
+  </script>
+</html>
